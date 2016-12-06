@@ -28,8 +28,6 @@ def get_delay(server):
 def main():
     logging.basicConfig(level=logging.INFO,
         format="%(asctime)s %(levelname)s: %(message)s")
-    #print get_delay("yandex.ru")
-    #print get_delay("hello.org")
     while True:
         LOG.info("Collecting stats for pings...")
         at = int(time())
