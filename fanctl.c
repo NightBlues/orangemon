@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiringPi.h>
+#include <softPwm.h>
 
 #define BOTTOM_LEVEL 37
 #define TOP_LEVEL 43
+#define POWER_TOP 255
+#define POWER(t) 150
 #define CTL_PIN 7
 #define DELAY_TIME 2000
 
@@ -38,7 +41,8 @@ int get_temp() {
 
 int main() {
   wiringPiSetup();
-  pinMode(CTL_PIN, OUTPUT);
+  // pinMode(CTL_PIN, PWM_OUTPUT);
+  softPwmCreate(CTL_PIN, 0, POWER_TOP);
 
   struct sigaction sa;
   sa.sa_handler = exit_handler;
@@ -60,7 +64,7 @@ int main() {
       state = 0;
     } else if(temp >= TOP_LEVEL && state == 0) {
       printf("INFO: Turning on (temp=%d)!\n", temp);
-      digitalWrite(CTL_PIN, HIGH);
+      softPwmWrite(CTL_PIN, POWER(temp));
       state = 1;
     }
     delay(DELAY_TIME);
