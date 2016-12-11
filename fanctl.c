@@ -13,7 +13,7 @@
 
 void exit_handler(int i) {
   printf("Fan controller stopped...\n");
-  digitalWrite(CTL_PIN, LOW);
+  softPwmWrite(CTL_PIN, 0);
   exit(0);
 }
 
@@ -60,7 +60,7 @@ int main() {
       printf("Error: Could not read cpu temperature value!\n");
     } else if(temp < BOTTOM_LEVEL && state == 1) {
       printf("INFO: Turning off (temp=%d)!\n", temp);
-      digitalWrite(CTL_PIN, LOW);
+      softPwmWrite(CTL_PIN, 0);
       state = 0;
     } else if(temp >= TOP_LEVEL && state == 0) {
       printf("INFO: Turning on (temp=%d)!\n", temp);
