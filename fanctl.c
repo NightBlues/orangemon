@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 
-#define BOTTOM_LEVEL 38
-#define TOP_LEVEL 41
+#define BOTTOM_LEVEL 37
+#define TOP_LEVEL 43
 #define CTL_PIN 7
 #define DELAY_TIME 2000
 
@@ -44,10 +44,10 @@ int main() {
   sa.sa_handler = exit_handler;
   sigaction(SIGTERM, &sa, 0);
   sigaction(SIGINT, &sa, 0);
-  sigset_t newset;
-  sigemptyset(&newset);
-  sigaddset(&newset, SIGHUP);
-  sigprocmask(SIG_BLOCK, &newset, 0);
+  /* sigset_t newset; */
+  /* sigemptyset(&newset); */
+  /* sigaddset(&newset, SIGHUP); */
+  /* sigprocmask(SIG_BLOCK, &newset, 0); */
 
   int state = 0;
   while(1) {

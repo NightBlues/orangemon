@@ -52,7 +52,7 @@ def main():
         static_path="static",
         template_path="template",
         debug=True)
-    app.listen(80)
+    app.listen(8080)
     tornado.ioloop.IOLoop.current().start()
 
 

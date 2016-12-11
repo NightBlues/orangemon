@@ -18,10 +18,10 @@ def get_delay(server):
         delay = ping.do_one(server, 0.999999, 64)
         # if timed out
         if delay is None:
-            delay = 0.009999
+            delay = 0
         delay = int(delay * 1000 * 1000)
     except socket.error:
-        delay = 9999
+        delay = 0
     return delay
 
 

@@ -1,0 +1,15 @@
+[Unit]
+Description=Orangepi monitoring
+After=network.target auditd.service
+
+[Service]
+WorkingDirectory=/home/nightblues/mon
+ExecStart=/home/nightblues/env/bin/python server.py
+KillMode=process
+StandardOutput=journal
+StandardError=journal
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+Alias=omweb.service
