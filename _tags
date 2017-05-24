@@ -1,2 +1,4 @@
 true: annot, bin_annot
-true: package(lwt.unix), package(cohttp.lwt), package(redis.lwt), package(ezjsonm)
+true: package(lwt.unix), package(lwt.ppx)
+true: package(cohttp.lwt), package(opium.unix), package(redis.lwt)
+true: package(ppx_deriving), package(ppx_deriving_yojson)

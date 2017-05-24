@@ -1,2 +1,2 @@
-PKG lwt cohttp opium redis
+PKG lwt cohttp opium.unix redis.lwt lwt.ppx ppx_deriving_yojson tcpip packet
 B _build
