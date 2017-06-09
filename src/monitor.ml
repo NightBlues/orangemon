@@ -1,43 +1,12 @@
 open Lwt
 open Opium.Std
 
-let temp_path = "/sys/class/hwmon/hwmon1/temp1_input"
-(* let temp_path = "/sys/class/hwmon/hwmon0/temp1_input" *)
 let redis_conn = ref None
 
 let log msg =
   print_endline msg
 
 let get_opt default = function None -> default| Some value -> value
-
-
-type temp_t = {
-    at: float;
-    temp: int;
-  } [@@deriving yojson]
-
-let temp_data () =
-  let time = Unix.time () in
-  Lwt_io.with_file ~mode:Lwt_io.Input temp_path
-                   (Lwt_io.read ~count:7)
-  >>= fun temp ->
-  let temp = int_of_string (String.trim temp) in
-  let data = {at=time;temp=temp} in
-  temp_t_to_yojson data |> Yojson.Safe.to_string |> return
-
-
-let collector () =
-  let conn = match !redis_conn with
-    | None -> failwith "Connection to redis disappeared."
-    | Some conn -> conn
-  in
-  let rec temp_col conn =
-    temp_data ()
-    >>= fun data -> Redis_lwt.Client.lpush conn "temp" data
-    >>= fun _ -> Lwt_unix.sleep 30.
-    >>= fun () -> temp_col conn
-  in
-  temp_col conn
 
 
 let index_view =
@@ -59,13 +28,7 @@ let cputemp_view =
     in
     let%lwt lines = Redis_lwt.Client.lrange conn "temp" 0 num in
     let data =
-      let converter temp =
-        let temp = Yojson.Safe.from_string temp |> temp_t_of_yojson in
-        match temp with
-        | Ok temp -> `List [`Float temp.at; `Int temp.temp]
-        | Error e -> failwith ("Error in temp data: " ^ e)
-      in
-      let lines = List.map converter lines in
+      let lines = List.map Collector.converter lines in
       `Assoc [("result", (`List [(`List lines)]))]
       |> Yojson.Safe.to_string
     in
@@ -94,4 +57,4 @@ let () =
   in
   Lwt_main.run
     (let%lwt () = connect_redis () in
-     (collector () <&> http_app_thread))
+     (Collector.collector redis_conn () <&> http_app_thread))
