@@ -17,10 +17,12 @@ void * worker_func(void * arg) {
     int result;
     int rc = ping_func("yandex.ru", &result);
     printf("ping_func code: %d, result = %d\n", rc, result);
-    pthread_mutex_lock(&lock);
-    times = result;
-    pthread_mutex_unlock(&lock);
-    sleep(30);
+    if(rc == 0) {
+      pthread_mutex_lock(&lock);
+      times = result;
+      pthread_mutex_unlock(&lock);
+    }
+    sleep(3);
   }
 }
 
@@ -71,9 +73,7 @@ CAMLprim value start_worker_ml(value unit) {
 }
 
 CAMLprim value get_times_ml(value unit) {
-  CAMLprim value result;
   int interval = get_times();
-  result = caml_copy_int32(interval);
 
-  return result;
+  return Val_int(interval);
 }

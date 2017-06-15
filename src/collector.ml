@@ -4,7 +4,7 @@ let temp_path = "/sys/class/hwmon/hwmon1/temp1_input"
 (* let temp_path = "/sys/class/hwmon/hwmon0/temp1_input" *)
 
 external start_worker: unit -> unit = "start_worker_ml"
-external get_times: unit -> int32 = "get_times_ml"
+external get_times: unit -> int = "get_times_ml"
 
 type temp_t = {
     at: float;
@@ -22,29 +22,31 @@ let temp_data () =
 
 let ping_data () =
   let time = Unix.time () in
-  let ping = get_times () |> Int32.to_int in
+  let ping = get_times () in
   `Assoc ["at", (`Float time); "delay", (`Int ping)]
   |> Yojson.Safe.to_string |> return
 
-let converter temp =
+let converter_temp temp =
   let temp = Yojson.Safe.from_string temp |> temp_t_of_yojson in
   match temp with
   | Ok temp -> `List [`Float temp.at; `Int temp.temp]
   | Error e -> failwith ("Error in temp data: " ^ e)
 
+let converter_ping ping =
+  match Yojson.Safe.from_string ping with
+  | `Assoc ["at", (`Float at); "delay", (`Int delay)] -> `List [`Float at; `Int delay]
+  | _ -> failwith ("Error in ping data " ^ ping)
+
 let collector redis_conn () =
-  let conn = match !redis_conn with
-    | None -> failwith "Connection to redis disappeared."
-    | Some conn -> conn
-  in
   start_worker ();
-  let rec temp_col conn =
-    temp_data ()
-    >>= fun data -> Redis_lwt.Client.lpush conn "temp" data
-    >>= fun _ -> return_unit
-    >>= ping_data
-    >>= fun data -> Redis_lwt.Client.lpush conn "pings" data
-    >>= fun _ -> Lwt_unix.sleep 30.
-    >>= fun () -> temp_col conn
+  let rec loop () =
+    let%lwt () = Lwt_unix.sleep 30. in
+    let%lwt data = temp_data () in
+    let%lwt _ = Lwt_pool.use redis_conn (fun conn ->
+                               Redis_lwt.Client.lpush conn "temp" data) in
+    let%lwt data = ping_data () in
+    let%lwt _ = Lwt_pool.use redis_conn (fun conn ->
+                               Redis_lwt.Client.lpush conn "pings" data) in
+    loop ()
   in
-  temp_col conn
+  loop ()

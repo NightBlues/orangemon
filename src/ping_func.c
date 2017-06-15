@@ -73,9 +73,9 @@ int ping_func(const char * hostname, int * result) {
 
   memcpy(data, &icmp_hdr, sizeof(icmp_hdr));
   memcpy(data + sizeof(icmp_hdr), "hello", 6); //icmp payload
+  clock_gettime(CLOCK_REALTIME, &start);
   rc = sendto(sock, data, sizeof(icmp_hdr) + 6, 0,
               &addr, sizeof(addr));
-  clock_gettime(CLOCK_REALTIME, &start);
   if(rc <= 0) {
     perror("ping_func: Failed to send icmp echo");
     return -2;
