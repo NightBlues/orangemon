@@ -1,0 +1,15 @@
+Source: orangemon
+Section: ocaml
+Priority: optional
+Maintainer: Vadim Radovel <vadim@radovel.ru>
+Build-Depends: debhelper (>=9), dh-ocaml, dh-systemd, opam
+Standards-Version: 3.9.7
+Homepage: https://github.com/nightblues/orangemon
+Vcs-Git: git://github.com/nightblues/orangemon.git
+Vcs-Browser: https://github.com/nightblues/orangemon
+
+Package: orangemon
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: my orange pi monitoring
+  My service for monitoring state of orange pi micro server.

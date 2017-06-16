@@ -1,23 +1,0 @@
-sessionname mon
-
-hardstatus alwayslastline 'g%{= kG}[ %{G}%H %{g}][%= %{= kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B} %m-%d %{W}%c %{g}]'
-
-setenv PROMPT_COMMAND /bin/true
-
-altscreen on
-
-startup_message off
-
-term screen-256color
-
-# shell
-
-screen -t collector bash
-stuff "../env/bin/python collector.py"
-screen -t web bash
-stuff "../env/bin/python server.py"
-screen -t fanctl bash
-stuff "./fanctl"
-screen -t bash bash
-
-#select 2
